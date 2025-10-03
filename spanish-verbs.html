@@ -491,7 +491,11 @@
             { verb: 'dar', english: 'to give', yo: 'doy', tú: 'das', él: 'da', nosotros: 'damos', ellos: 'dan' },
             { verb: 'ver', english: 'to see', yo: 'veo', tú: 'ves', él: 've', nosotros: 'vemos', ellos: 'ven' },
             { verb: 'salir', english: 'to leave/go out', yo: 'salgo', tú: 'sales', él: 'sale', nosotros: 'salimos', ellos: 'salen' },
-            { verb: 'traer', english: 'to bring', yo: 'traigo', tú: 'traes', él: 'trae', nosotros: 'traemos', ellos: 'traen' }
+            { verb: 'traer', english: 'to bring', yo: 'traigo', tú: 'traes', él: 'trae', nosotros: 'traemos', ellos: 'traen' },
+            { verb: 'caer', english: 'to fall', yo: 'caigo', tú: 'caes', él: 'cae', nosotros: 'caemos', ellos: 'caen' },
+            { verb: 'conocer', english: 'to know/meet', yo: 'conozco', tú: 'conoces', él: 'conoce', nosotros: 'conocemos', ellos: 'conocen' },
+            { verb: 'oír', english: 'to hear', yo: 'oigo', tú: 'oyes', él: 'oye', nosotros: 'oímos', ellos: 'oyen' },
+            { verb: 'seguir', english: 'to follow', yo: 'sigo', tú: 'sigues', él: 'sigue', nosotros: 'seguimos', ellos: 'siguen' }
         ];
 
         // Direct object pronoun questions
@@ -934,20 +938,52 @@
 
                 document.getElementById('results-title').textContent = 'Quiz Complete!';
                 document.getElementById('score').innerHTML = `${percentage}%<br><img src="images/Kuromi_render.png" alt="Kuromi">`;
-                document.getElementById('results-message').textContent = `You got ${score} out of ${quizSize} correct!`;
 
-                // Show score history
+                // Generate improvement commentary and score history
                 const history = getScoreHistory(currentStudent);
+                let commentary = '';
+                let historyHTML = '';
+
+                if (history.length >= 2) {
+                    const currentScore = history[history.length - 1];
+                    const previousScore = history[history.length - 2];
+                    const improvement = currentScore.percentage - previousScore.percentage;
+
+                    if (improvement > 10) {
+                        commentary = `<div style="padding: 15px; background: #d4edda; border-left: 4px solid #28a745; margin: 20px 0; border-radius: 5px; color: #155724; font-weight: bold;">🎉 Great improvement! You're up ${improvement}% from your last quiz!</div>`;
+                    } else if (improvement > 0) {
+                        commentary = `<div style="padding: 15px; background: #d1ecf1; border-left: 4px solid #0c5460; margin: 20px 0; border-radius: 5px; color: #0c5460; font-weight: bold;">👍 Nice! You improved by ${improvement}% - keep it up!</div>`;
+                    } else if (improvement === 0) {
+                        commentary = `<div style="padding: 15px; background: #fff3cd; border-left: 4px solid #856404; margin: 20px 0; border-radius: 5px; color: #856404; font-weight: bold;">📊 Same score as last time. Keep practicing to improve!</div>`;
+                    } else {
+                        commentary = `<div style="padding: 15px; background: #f8d7da; border-left: 4px solid #721c24; margin: 20px 0; border-radius: 5px; color: #721c24; font-weight: bold;">💪 Don't give up! Practice makes perfect!</div>`;
+                    }
+
+                    // Calculate overall trend
+                    if (history.length >= 3) {
+                        const last3 = history.slice(-3);
+                        const avgLast3 = last3.reduce((sum, h) => sum + h.percentage, 0) / 3;
+                        const firstHalf = history.slice(0, Math.floor(history.length / 2));
+                        const avgFirst = firstHalf.reduce((sum, h) => sum + h.percentage, 0) / firstHalf.length;
+
+                        if (avgLast3 > avgFirst + 10) {
+                            commentary += `<div style="padding: 10px; background: #e7f3ff; border-radius: 5px; margin-top: 10px; color: #004085;">📈 Overall Trend: You're getting better! Keep up the great work!</div>`;
+                        }
+                    }
+                }
+
+                // Build score history display
                 if (history.length > 0) {
-                    const historyHTML = '<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;"><h3 style="color: #667eea; margin-bottom: 10px;">📊 Your Progress</h3>' +
+                    historyHTML = '<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;"><h3 style="color: #667eea; margin-bottom: 10px;">📊 Your Score History</h3>' +
                         history.slice(-10).reverse().map((h, i) => {
                             const date = new Date(h.date);
                             const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                            return `<div style="padding: 5px 0; color: #666;">${dateStr}: <strong style="color: ${h.percentage >= 80 ? '#28a745' : h.percentage >= 60 ? '#ffc107' : '#dc3545'}">${h.percentage}%</strong> (${h.score}/${h.total})</div>`;
+                            const isLatest = i === 0;
+                            return `<div style="padding: 5px 0; color: #666; ${isLatest ? 'font-weight: bold; border-left: 3px solid #667eea; padding-left: 10px;' : ''}">${dateStr}: <strong style="color: ${h.percentage >= 80 ? '#28a745' : h.percentage >= 60 ? '#ffc107' : '#dc3545'}">${h.percentage}%</strong> (${h.score}/${h.total})${isLatest ? ' ← Latest' : ''}</div>`;
                         }).join('') + '</div>';
-
-                    document.getElementById('results-message').innerHTML = `You got ${score} out of ${quizSize} correct!` + historyHTML;
                 }
+
+                document.getElementById('results-message').innerHTML = `You got ${score} out of ${quizSize} correct!` + commentary + historyHTML;
 
                 if (mistakes.length > 0) {
                     document.getElementById('gaps-section').style.display = 'block';
