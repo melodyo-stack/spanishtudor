@@ -922,11 +922,24 @@
             document.getElementById('results').style.display = 'block';
 
             if (reviewMode) {
-                // Review results
+                // Review results - also show score history
+                const history = getScoreHistory(currentStudent);
+                let historyHTML = '';
+
+                if (history.length > 0) {
+                    historyHTML = '<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 10px;"><h3 style="color: #667eea; margin-bottom: 10px;">📊 Your Score History</h3>' +
+                        history.slice(-10).reverse().map((h, i) => {
+                            const date = new Date(h.date);
+                            const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                            const isLatest = i === 0;
+                            return `<div style="padding: 5px 0; color: #666; ${isLatest ? 'font-weight: bold; border-left: 3px solid #667eea; padding-left: 10px;' : ''}">${dateStr}: <strong style="color: ${h.percentage >= 80 ? '#28a745' : h.percentage >= 60 ? '#ffc107' : '#dc3545'}">${h.percentage}%</strong> (${h.score}/${h.total})${isLatest ? ' ← Latest' : ''}</div>`;
+                        }).join('') + '</div>';
+                }
+
                 if (reviewCompleted) {
                     document.getElementById('results-title').textContent = 'Review Complete!';
                     document.getElementById('score').innerHTML = '100%<br><img src="images/Kuromi_render.png" alt="Kuromi">';
-                    document.getElementById('results-message').textContent = `You mastered all ${reviewQuestions.length} review question${reviewQuestions.length === 1 ? '' : 's'}!`;
+                    document.getElementById('results-message').innerHTML = `You mastered all ${reviewQuestions.length} review question${reviewQuestions.length === 1 ? '' : 's'}!` + historyHTML;
                     document.getElementById('gaps-section').style.display = 'block';
                     document.getElementById('gaps-list').innerHTML = '<p style="color: #28a745; font-weight: bold; font-size: 18px;">🎉 Excellent! You\'ve mastered all the questions you missed!</p>';
                     document.getElementById('review-again-btn').style.display = 'none';
@@ -934,7 +947,7 @@
                     // Review not completed, shouldn't normally happen
                     document.getElementById('results-title').textContent = 'Review Progress';
                     document.getElementById('score').innerHTML = 'In Progress<br><img src="images/Kuromi_render.png" alt="Kuromi">';
-                    document.getElementById('results-message').textContent = 'Keep practicing!';
+                    document.getElementById('results-message').innerHTML = 'Keep practicing!' + historyHTML;
                     document.getElementById('review-again-btn').style.display = 'none';
                 }
             } else {
