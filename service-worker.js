@@ -1,8 +1,9 @@
 const CACHE_NAME = 'spanish-tutor-v1';
 const urlsToCache = [
-  '/spanish-verbs.html',
-  '/images/Hello_Kitty.webp',
-  '/images/Kuromi_render.png'
+  '/spanishtudor/spanish-verbs.html',
+  '/spanishtudor/images/Hello_Kitty.webp',
+  '/spanishtudor/images/Kuromi_render.png',
+  '/spanishtudor/manifest.json'
 ];
 
 // Install service worker and cache files

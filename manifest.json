@@ -2,7 +2,7 @@
   "name": "Spanish Learning Tutor",
   "short_name": "Spanish Tutor",
   "description": "Learn Spanish verb conjugations and direct object pronouns with Hello Kitty!",
-  "start_url": "/spanish-verbs.html",
+  "start_url": "/spanishtudor/spanish-verbs.html",
   "display": "standalone",
   "background_color": "#ff6b9d",
   "theme_color": "#ff6b9d",
