@@ -409,14 +409,17 @@
         <div id="mode-screen" class="mode-selection" style="display: none;">
             <h2>What do you want to practice?</h2>
             <div class="mode-buttons">
-                <button class="mode-btn" onclick="startQuiz('verbs')">
-                    🌟 Present Tense Irregular Verbs 🌟
+                <button class="mode-btn" onclick="startQuiz('verbs')" style="text-align: left; padding: 20px;">
+                    <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">🌟 Present Tense Irregular Verbs 🌟</div>
+                    <div style="font-size: 14px; font-weight: normal; opacity: 0.9;">Practice conjugating irregular verbs like ser, estar, ir, tener (I am, you go, he has...)</div>
                 </button>
-                <button class="mode-btn pronouns" onclick="startQuiz('pronouns')">
-                    ✨ Direct Object Pronouns ✨
+                <button class="mode-btn pronouns" onclick="startQuiz('pronouns')" style="text-align: left; padding: 20px;">
+                    <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">✨ Direct Object Pronouns ✨</div>
+                    <div style="font-size: 14px; font-weight: normal; opacity: 0.9;">Who/what receives the action: me, te, lo, la, nos, los, las (I see him → lo veo)</div>
                 </button>
-                <button class="mode-btn" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white;" onclick="startQuiz('indirect')">
-                    💫 Indirect Object Pronouns 💫
+                <button class="mode-btn" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white; text-align: left; padding: 20px;" onclick="startQuiz('indirect')">
+                    <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">💫 Indirect Object Pronouns 💫</div>
+                    <div style="font-size: 14px; font-weight: normal; opacity: 0.9;">To/for whom the action is done: me, te, le, nos, les (I give to her → le doy)</div>
                 </button>
             </div>
             <button class="back-btn" onclick="backToWelcome()">← Change Student</button>
