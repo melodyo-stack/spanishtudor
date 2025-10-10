@@ -415,6 +415,9 @@
                 <button class="mode-btn pronouns" onclick="startQuiz('pronouns')">
                     ✨ Direct Object Pronouns ✨
                 </button>
+                <button class="mode-btn" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); color: white;" onclick="startQuiz('indirect')">
+                    💫 Indirect Object Pronouns 💫
+                </button>
             </div>
             <button class="back-btn" onclick="backToWelcome()">← Change Student</button>
         </div>
@@ -470,6 +473,16 @@
 
                 <button class="restart-btn" onclick="restartQuiz()">Take Quiz Again</button>
                 <button class="review-btn" id="review-again-btn" onclick="reviewAgain()" style="display: none;">Review Mistakes Again</button>
+            </div>
+        </div>
+
+        <!-- Graph Page -->
+        <div id="graph-page" style="display: none;">
+            <div class="results">
+                <h2 style="color: #667eea; margin-bottom: 20px;">📊 Your Score Progress</h2>
+                <canvas id="scoreChart" style="max-width: 600px; margin: 20px auto;"></canvas>
+                <div id="graph-stats" style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px;"></div>
+                <button class="back-btn" onclick="backToResults()" style="margin-top: 20px;">← Back to Results</button>
             </div>
         </div>
         </div>
@@ -528,6 +541,38 @@
             { sentence: 'I see you (Usted, masculine)', verb: 'ver', answer: 'lo veo' },
             { sentence: 'She loves you (Usted, masculine)', verb: 'amar', answer: 'lo ama' },
             { sentence: 'They know you (Usted, feminine)', verb: 'conocer', answer: 'la conocen' }
+        ];
+
+        // Indirect object pronoun questions
+        const indirectPronounQuestions = [
+            { sentence: 'I give to him/her', verb: 'dar', answer: 'le doy' },
+            { sentence: 'I give to them', verb: 'dar', answer: 'les doy' },
+            { sentence: 'You send to me', verb: 'enviar', answer: 'me envías' },
+            { sentence: 'He writes to us', verb: 'escribir', answer: 'nos escribe' },
+            { sentence: 'She tells to you (tú)', verb: 'decir', answer: 'te dice' },
+            { sentence: 'We bring to him/her', verb: 'traer', answer: 'le traemos' },
+            { sentence: 'They show to me', verb: 'mostrar', answer: 'me muestran' },
+            { sentence: 'I explain to them', verb: 'explicar', answer: 'les explico' },
+            { sentence: 'You buy for me', verb: 'comprar', answer: 'me compras' },
+            { sentence: 'He gives to us', verb: 'dar', answer: 'nos da' },
+            { sentence: 'She sends to you (tú)', verb: 'enviar', answer: 'te envía' },
+            { sentence: 'We tell to him/her', verb: 'decir', answer: 'le decimos' },
+            { sentence: 'They write to me', verb: 'escribir', answer: 'me escriben' },
+            { sentence: 'I ask to you (tú)', verb: 'preguntar', answer: 'te pregunto' },
+            { sentence: 'You give to them', verb: 'dar', answer: 'les das' },
+            { sentence: 'He teaches to us', verb: 'enseñar', answer: 'nos enseña' },
+            { sentence: 'She brings to me', verb: 'traer', answer: 'me trae' },
+            { sentence: 'We send to him/her', verb: 'enviar', answer: 'le enviamos' },
+            { sentence: 'They offer to you (tú)', verb: 'ofrecer', answer: 'te ofrecen' },
+            { sentence: 'I recommend to them', verb: 'recomendar', answer: 'les recomiendo' },
+            { sentence: 'You explain to me', verb: 'explicar', answer: 'me explicas' },
+            { sentence: 'He says to us', verb: 'decir', answer: 'nos dice' },
+            { sentence: 'She gives to you (tú)', verb: 'dar', answer: 'te da' },
+            { sentence: 'We ask to him/her', verb: 'preguntar', answer: 'le preguntamos' },
+            { sentence: 'They show to me', verb: 'mostrar', answer: 'me muestran' },
+            { sentence: 'I lend to you (tú)', verb: 'prestar', answer: 'te presto' },
+            { sentence: 'You promise to them', verb: 'prometer', answer: 'les prometes' },
+            { sentence: 'He gives to me', verb: 'dar', answer: 'me da' }
         ];
 
         const pronouns = ['yo', 'tú', 'él', 'nosotros', 'ellos'];
@@ -627,8 +672,10 @@
             // Update subtitle
             if (quizMode === 'verbs') {
                 document.getElementById('subtitle').textContent = '🌟 Present Tense Irregular Verbs 🌟';
-            } else {
+            } else if (quizMode === 'pronouns') {
                 document.getElementById('subtitle').textContent = '✨ Direct Object Pronouns ✨';
+            } else {
+                document.getElementById('subtitle').textContent = '💫 Indirect Object Pronouns 💫';
             }
 
             // Load student data and start quiz
@@ -668,7 +715,7 @@
                 // Shuffle and select questions based on quiz size
                 const shuffled = allCombinations.sort(() => Math.random() - 0.5);
                 questions = shuffled.slice(0, quizSize);
-            } else {
+            } else if (quizMode === 'pronouns') {
                 // Direct object pronouns mode
                 const shuffled = pronounQuestions.sort(() => Math.random() - 0.5);
                 questions = shuffled.slice(0, quizSize).map(q => ({
@@ -676,6 +723,15 @@
                     verb: q.verb,
                     answer: q.answer,
                     type: 'pronoun'
+                }));
+            } else {
+                // Indirect object pronouns mode
+                const shuffled = indirectPronounQuestions.sort(() => Math.random() - 0.5);
+                questions = shuffled.slice(0, quizSize).map(q => ({
+                    sentence: q.sentence,
+                    verb: q.verb,
+                    answer: q.answer,
+                    type: 'indirect'
                 }));
             }
         }
@@ -698,7 +754,7 @@
                 document.getElementById('verb').textContent = `(${q.verb})`;
                 document.getElementById('english').textContent = q.english;
             } else {
-                // Pronoun mode
+                // Pronoun mode (both direct and indirect)
                 document.getElementById('pronoun').textContent = q.sentence;
                 document.getElementById('verb').textContent = `Verb: ${q.verb}`;
                 document.getElementById('english').textContent = '';
@@ -757,14 +813,23 @@
                     key: `${m.verb}-${m.pronoun}`,
                     type: 'verb'
                 }));
-            } else {
-                // Pronoun mode
+            } else if (quizMode === 'pronouns') {
+                // Direct object pronoun mode
                 reviewQuestions = mistakes.map(m => ({
                     sentence: m.sentence,
                     verb: m.verb,
                     answer: m.correct,
                     key: `${m.sentence}-${m.answer}`,
                     type: 'pronoun'
+                }));
+            } else {
+                // Indirect object pronoun mode
+                reviewQuestions = mistakes.map(m => ({
+                    sentence: m.sentence,
+                    verb: m.verb,
+                    answer: m.correct,
+                    key: `${m.sentence}-${m.answer}`,
+                    type: 'indirect'
                 }));
             }
 
@@ -936,10 +1001,19 @@
                         }).join('') + '</div>';
                 }
 
+                // Add progress summary for review completion
+                let reviewProgressSummary = '';
+                if (history.length >= 2) {
+                    const recentScores = history.slice(-5);
+                    const avgRecent = Math.round(recentScores.reduce((sum, h) => sum + h.percentage, 0) / recentScores.length);
+                    const latestPercentage = history[history.length - 1].percentage;
+                    reviewProgressSummary = `<div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 10px; border-left: 4px solid #667eea;"><h3 style="color: #667eea; margin-bottom: 10px;">📈 Your Progress Summary</h3><p style="color: #333; margin: 5px 0;">Latest Quiz Score: <strong style="color: ${latestPercentage >= 80 ? '#28a745' : latestPercentage >= 60 ? '#ffc107' : '#dc3545'}">${latestPercentage}%</strong></p><p style="color: #333; margin: 5px 0;">Recent Average (last 5): <strong>${avgRecent}%</strong></p><p style="color: #333; margin: 5px 0;">Total Quizzes Taken: <strong>${history.length}</strong></p><button onclick="showGraphPage()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">📊 View Score Graph</button></div>`;
+                }
+
                 if (reviewCompleted) {
                     document.getElementById('results-title').textContent = 'Review Complete!';
                     document.getElementById('score').innerHTML = '100%<br><img src="images/Kuromi_render.png" alt="Kuromi">';
-                    document.getElementById('results-message').innerHTML = `You mastered all ${reviewQuestions.length} review question${reviewQuestions.length === 1 ? '' : 's'}!` + historyHTML;
+                    document.getElementById('results-message').innerHTML = `You mastered all ${reviewQuestions.length} review question${reviewQuestions.length === 1 ? '' : 's'}!` + reviewProgressSummary + historyHTML;
                     document.getElementById('gaps-section').style.display = 'block';
                     document.getElementById('gaps-list').innerHTML = '<p style="color: #28a745; font-weight: bold; font-size: 18px;">🎉 Excellent! You\'ve mastered all the questions you missed!</p>';
                     document.getElementById('review-again-btn').style.display = 'none';
@@ -947,7 +1021,7 @@
                     // Review not completed, shouldn't normally happen
                     document.getElementById('results-title').textContent = 'Review Progress';
                     document.getElementById('score').innerHTML = 'In Progress<br><img src="images/Kuromi_render.png" alt="Kuromi">';
-                    document.getElementById('results-message').innerHTML = 'Keep practicing!' + historyHTML;
+                    document.getElementById('results-message').innerHTML = 'Keep practicing!' + reviewProgressSummary + historyHTML;
                     document.getElementById('review-again-btn').style.display = 'none';
                 }
             } else {
@@ -1004,7 +1078,15 @@
                         }).join('') + '</div>';
                 }
 
-                document.getElementById('results-message').innerHTML = `You got ${score} out of ${quizSize} correct!` + commentary + historyHTML;
+                // Add progress summary
+                let progressSummary = '';
+                if (history.length >= 2) {
+                    const recentScores = history.slice(-5);
+                    const avgRecent = Math.round(recentScores.reduce((sum, h) => sum + h.percentage, 0) / recentScores.length);
+                    progressSummary = `<div style="margin-top: 20px; padding: 15px; background: #e7f3ff; border-radius: 10px; border-left: 4px solid #667eea;"><h3 style="color: #667eea; margin-bottom: 10px;">📈 Your Progress Summary</h3><p style="color: #333; margin: 5px 0;">Current Score: <strong style="color: ${percentage >= 80 ? '#28a745' : percentage >= 60 ? '#ffc107' : '#dc3545'}">${percentage}%</strong></p><p style="color: #333; margin: 5px 0;">Recent Average (last 5): <strong>${avgRecent}%</strong></p><p style="color: #333; margin: 5px 0;">Total Quizzes Taken: <strong>${history.length}</strong></p><button onclick="showGraphPage()" style="margin-top: 15px; padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">📊 View Score Graph</button></div>`;
+                }
+
+                document.getElementById('results-message').innerHTML = `You got ${score} out of ${quizSize} correct!` + commentary + progressSummary + historyHTML;
 
                 if (mistakes.length > 0) {
                     document.getElementById('gaps-section').style.display = 'block';
@@ -1061,6 +1143,170 @@
                 }
             }
         });
+
+        // Show graph page
+        function showGraphPage() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('graph-page').style.display = 'block';
+            renderScoreGraph();
+        }
+
+        // Back to results from graph
+        function backToResults() {
+            document.getElementById('graph-page').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Render score graph using canvas
+        function renderScoreGraph() {
+            const history = getScoreHistory(currentStudent);
+            if (history.length === 0) return;
+
+            const canvas = document.getElementById('scoreChart');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size
+            canvas.width = 600;
+            canvas.height = 400;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Graph dimensions
+            const padding = 50;
+            const graphWidth = canvas.width - 2 * padding;
+            const graphHeight = canvas.height - 2 * padding;
+
+            // Draw axes
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+
+            // Draw labels
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Score (%)', padding / 2, padding / 2);
+            ctx.fillText('Quiz Number', canvas.width / 2, canvas.height - 10);
+
+            // Draw Y-axis labels (0, 20, 40, 60, 80, 100)
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const y = canvas.height - padding - (i * graphHeight / 5);
+                const label = i * 20;
+                ctx.fillText(label + '%', padding - 10, y + 5);
+
+                // Draw gridlines
+                ctx.strokeStyle = '#e0e0e0';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(canvas.width - padding, y);
+                ctx.stroke();
+            }
+
+            // Plot data points
+            const maxPoints = Math.min(history.length, 20); // Show last 20 quizzes
+            const dataToPlot = history.slice(-maxPoints);
+            const xStep = graphWidth / (maxPoints - 1 || 1);
+
+            // Draw line
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            dataToPlot.forEach((h, i) => {
+                const x = padding + (i * xStep);
+                const y = canvas.height - padding - (h.percentage * graphHeight / 100);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+
+            // Draw points
+            dataToPlot.forEach((h, i) => {
+                const x = padding + (i * xStep);
+                const y = canvas.height - padding - (h.percentage * graphHeight / 100);
+
+                // Point circle
+                ctx.fillStyle = h.percentage >= 80 ? '#28a745' : h.percentage >= 60 ? '#ffc107' : '#dc3545';
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Point border
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // X-axis labels (quiz number)
+                ctx.fillStyle = '#333';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                const quizNum = history.length - maxPoints + i + 1;
+                ctx.fillText(quizNum, x, canvas.height - padding + 20);
+            });
+
+            // Generate statistics
+            const statsDiv = document.getElementById('graph-stats');
+            const percentages = history.map(h => h.percentage);
+            const avgScore = Math.round(percentages.reduce((a, b) => a + b, 0) / percentages.length);
+            const highScore = Math.max(...percentages);
+            const lowScore = Math.min(...percentages);
+            const recentAvg = Math.round(dataToPlot.map(h => h.percentage).reduce((a, b) => a + b, 0) / dataToPlot.length);
+
+            // Calculate trend
+            let trend = 'Stable';
+            let trendColor = '#ffc107';
+            if (history.length >= 3) {
+                const recent3 = history.slice(-3).map(h => h.percentage);
+                const older3 = history.slice(-6, -3).map(h => h.percentage);
+                if (older3.length > 0) {
+                    const recentAvg3 = recent3.reduce((a, b) => a + b, 0) / recent3.length;
+                    const olderAvg3 = older3.reduce((a, b) => a + b, 0) / older3.length;
+                    if (recentAvg3 > olderAvg3 + 5) {
+                        trend = 'Improving! 📈';
+                        trendColor = '#28a745';
+                    } else if (recentAvg3 < olderAvg3 - 5) {
+                        trend = 'Needs Practice 📉';
+                        trendColor = '#dc3545';
+                    }
+                }
+            }
+
+            statsDiv.innerHTML = `
+                <h3 style="color: #667eea; margin-bottom: 15px;">Statistics</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div style="padding: 15px; background: white; border-radius: 8px;">
+                        <div style="color: #666; font-size: 14px;">Overall Average</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #667eea;">${avgScore}%</div>
+                    </div>
+                    <div style="padding: 15px; background: white; border-radius: 8px;">
+                        <div style="color: #666; font-size: 14px;">Recent Average</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #667eea;">${recentAvg}%</div>
+                    </div>
+                    <div style="padding: 15px; background: white; border-radius: 8px;">
+                        <div style="color: #666; font-size: 14px;">Highest Score</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #28a745;">${highScore}%</div>
+                    </div>
+                    <div style="padding: 15px; background: white; border-radius: 8px;">
+                        <div style="color: #666; font-size: 14px;">Lowest Score</div>
+                        <div style="font-size: 28px; font-weight: bold; color: #dc3545;">${lowScore}%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 8px; text-align: center;">
+                    <div style="color: #666; font-size: 14px; margin-bottom: 5px;">Trend</div>
+                    <div style="font-size: 24px; font-weight: bold; color: ${trendColor};">${trend}</div>
+                </div>
+            `;
+        }
 
         // Initialize - show welcome screen
         // No auto-loading, wait for user to select student and mode
