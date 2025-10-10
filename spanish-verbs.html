@@ -421,6 +421,10 @@
                     <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">💫 Indirect Object Pronouns 💫</div>
                     <div style="font-size: 14px; font-weight: normal; opacity: 0.9;">To/for whom the action is done: me, te, le, nos, les (I give to her → le doy)</div>
                 </button>
+                <button class="mode-btn" style="background: linear-gradient(135deg, #ff6b6b 0%, #c44569 100%); color: white; text-align: left; padding: 20px;" onclick="startQuiz('advanced')">
+                    <div style="font-size: 22px; font-weight: bold; margin-bottom: 8px;">🔥 Advanced - Mixed Challenge 🔥</div>
+                    <div style="font-size: 14px; font-weight: normal; opacity: 0.9;">Mix of all topics: verbs, direct + indirect pronouns combined (He gives it to me → me lo da)</div>
+                </button>
             </div>
             <button class="back-btn" onclick="backToWelcome()">← Change Student</button>
         </div>
@@ -578,6 +582,34 @@
             { sentence: 'He gives to me', verb: 'dar', answer: 'me da' }
         ];
 
+        // Mixed direct and indirect object pronoun questions (ADVANCED)
+        const mixedPronounQuestions = [
+            { sentence: 'He gives it (masc.) to me', verb: 'dar', answer: 'me lo da' },
+            { sentence: 'I give it (fem.) to you (tú)', verb: 'dar', answer: 'te la doy' },
+            { sentence: 'She sends them (masc.) to us', verb: 'enviar', answer: 'nos los envía' },
+            { sentence: 'You give it (masc.) to him/her', verb: 'dar', answer: 'se lo das' },
+            { sentence: 'We show it (fem.) to them', verb: 'mostrar', answer: 'se la mostramos' },
+            { sentence: 'They tell it (masc.) to me', verb: 'decir', answer: 'me lo dicen' },
+            { sentence: 'I send them (fem.) to you (tú)', verb: 'enviar', answer: 'te las envío' },
+            { sentence: 'He brings it (masc.) to us', verb: 'traer', answer: 'nos lo trae' },
+            { sentence: 'She gives them (masc.) to him/her', verb: 'dar', answer: 'se los da' },
+            { sentence: 'You write it (fem.) to me', verb: 'escribir', answer: 'me la escribes' },
+            { sentence: 'We bring it (masc.) to you (tú)', verb: 'traer', answer: 'te lo traemos' },
+            { sentence: 'They give it (fem.) to us', verb: 'dar', answer: 'nos la dan' },
+            { sentence: 'I explain it (masc.) to them', verb: 'explicar', answer: 'se lo explico' },
+            { sentence: 'You send it (fem.) to him/her', verb: 'enviar', answer: 'se la envías' },
+            { sentence: 'He shows them (fem.) to me', verb: 'mostrar', answer: 'me las muestra' },
+            { sentence: 'She tells it (masc.) to you (tú)', verb: 'decir', answer: 'te lo dice' },
+            { sentence: 'We give them (masc.) to them', verb: 'dar', answer: 'se los damos' },
+            { sentence: 'They bring it (fem.) to me', verb: 'traer', answer: 'me la traen' },
+            { sentence: 'I offer it (masc.) to you (tú)', verb: 'ofrecer', answer: 'te lo ofrezco' },
+            { sentence: 'You recommend them (fem.) to us', verb: 'recomendar', answer: 'nos las recomiendas' },
+            { sentence: 'He gives it (fem.) to them', verb: 'dar', answer: 'se la da' },
+            { sentence: 'She sends it (masc.) to me', verb: 'enviar', answer: 'me lo envía' },
+            { sentence: 'We show it (masc.) to him/her', verb: 'mostrar', answer: 'se lo mostramos' },
+            { sentence: 'They give them (fem.) to you (tú)', verb: 'dar', answer: 'te las dan' }
+        ];
+
         const pronouns = ['yo', 'tú', 'él', 'nosotros', 'ellos'];
         let questions = [];
         let currentQuestion = 0;
@@ -677,8 +709,10 @@
                 document.getElementById('subtitle').textContent = '🌟 Present Tense Irregular Verbs 🌟';
             } else if (quizMode === 'pronouns') {
                 document.getElementById('subtitle').textContent = '✨ Direct Object Pronouns ✨';
-            } else {
+            } else if (quizMode === 'indirect') {
                 document.getElementById('subtitle').textContent = '💫 Indirect Object Pronouns 💫';
+            } else {
+                document.getElementById('subtitle').textContent = '🔥 Advanced - Mixed Challenge 🔥';
             }
 
             // Load student data and start quiz
@@ -727,7 +761,7 @@
                     answer: q.answer,
                     type: 'pronoun'
                 }));
-            } else {
+            } else if (quizMode === 'indirect') {
                 // Indirect object pronouns mode
                 const shuffled = indirectPronounQuestions.sort(() => Math.random() - 0.5);
                 questions = shuffled.slice(0, quizSize).map(q => ({
@@ -736,6 +770,55 @@
                     answer: q.answer,
                     type: 'indirect'
                 }));
+            } else {
+                // Advanced mode - mix of all question types
+                const allQuestions = [];
+
+                // Add some verb conjugations
+                const verbCombos = [];
+                irregularVerbs.forEach(verbObj => {
+                    pronouns.forEach(pronoun => {
+                        verbCombos.push({
+                            verb: verbObj.verb,
+                            english: verbObj.english,
+                            pronoun: pronoun,
+                            answer: verbObj[pronoun],
+                            type: 'verb'
+                        });
+                    });
+                });
+                const shuffledVerbs = verbCombos.sort(() => Math.random() - 0.5).slice(0, Math.floor(quizSize / 4));
+                allQuestions.push(...shuffledVerbs);
+
+                // Add some direct object pronouns
+                const shuffledDirect = pronounQuestions.sort(() => Math.random() - 0.5).slice(0, Math.floor(quizSize / 4));
+                allQuestions.push(...shuffledDirect.map(q => ({
+                    sentence: q.sentence,
+                    verb: q.verb,
+                    answer: q.answer,
+                    type: 'pronoun'
+                })));
+
+                // Add some indirect object pronouns
+                const shuffledIndirect = indirectPronounQuestions.sort(() => Math.random() - 0.5).slice(0, Math.floor(quizSize / 4));
+                allQuestions.push(...shuffledIndirect.map(q => ({
+                    sentence: q.sentence,
+                    verb: q.verb,
+                    answer: q.answer,
+                    type: 'indirect'
+                })));
+
+                // Add mixed direct + indirect pronouns
+                const shuffledMixed = mixedPronounQuestions.sort(() => Math.random() - 0.5).slice(0, Math.floor(quizSize / 4));
+                allQuestions.push(...shuffledMixed.map(q => ({
+                    sentence: q.sentence,
+                    verb: q.verb,
+                    answer: q.answer,
+                    type: 'mixed'
+                })));
+
+                // Shuffle all questions together and trim to exact quiz size
+                questions = allQuestions.sort(() => Math.random() - 0.5).slice(0, quizSize);
             }
         }
 
@@ -825,7 +908,7 @@
                     key: `${m.sentence}-${m.answer}`,
                     type: 'pronoun'
                 }));
-            } else {
+            } else if (quizMode === 'indirect') {
                 // Indirect object pronoun mode
                 reviewQuestions = mistakes.map(m => ({
                     sentence: m.sentence,
@@ -833,6 +916,17 @@
                     answer: m.correct,
                     key: `${m.sentence}-${m.answer}`,
                     type: 'indirect'
+                }));
+            } else {
+                // Advanced mode - preserve the type from original mistake
+                reviewQuestions = mistakes.map(m => ({
+                    verb: m.verb,
+                    english: m.english,
+                    pronoun: m.pronoun,
+                    sentence: m.sentence,
+                    answer: m.correct,
+                    key: m.type === 'verb' ? `${m.verb}-${m.pronoun}` : `${m.sentence}-${m.answer}`,
+                    type: m.type
                 }));
             }
 
@@ -917,14 +1011,15 @@
                     }
                 } else {
                     feedback.className = 'feedback incorrect';
-                    if (quizMode === 'verbs') {
+                    if (questions[currentQuestion].type === 'verb') {
                         feedback.textContent = `Incorrect. The correct answer is: ${questions[currentQuestion].pronoun} ${correctAnswer}`;
                         mistakes.push({
                             verb: questions[currentQuestion].verb,
                             english: questions[currentQuestion].english,
                             pronoun: questions[currentQuestion].pronoun,
                             correct: correctAnswer,
-                            given: userAnswer
+                            given: userAnswer,
+                            type: 'verb'
                         });
                     } else {
                         feedback.textContent = `Incorrect. The correct answer is: ${correctAnswer}`;
@@ -932,7 +1027,8 @@
                             sentence: questions[currentQuestion].sentence,
                             verb: questions[currentQuestion].verb,
                             correct: correctAnswer,
-                            given: userAnswer
+                            given: userAnswer,
+                            type: questions[currentQuestion].type
                         });
                     }
                 }
@@ -964,13 +1060,24 @@
         }
 
         function skipQuestion() {
-            mistakes.push({
-                verb: questions[currentQuestion].verb,
-                english: questions[currentQuestion].english,
-                pronoun: questions[currentQuestion].pronoun,
-                correct: questions[currentQuestion].answer,
-                given: '(skipped)'
-            });
+            if (questions[currentQuestion].type === 'verb') {
+                mistakes.push({
+                    verb: questions[currentQuestion].verb,
+                    english: questions[currentQuestion].english,
+                    pronoun: questions[currentQuestion].pronoun,
+                    correct: questions[currentQuestion].answer,
+                    given: '(skipped)',
+                    type: 'verb'
+                });
+            } else {
+                mistakes.push({
+                    sentence: questions[currentQuestion].sentence,
+                    verb: questions[currentQuestion].verb,
+                    correct: questions[currentQuestion].answer,
+                    given: '(skipped)',
+                    type: questions[currentQuestion].type
+                });
+            }
             currentQuestion++;
             displayQuestion();
         }
