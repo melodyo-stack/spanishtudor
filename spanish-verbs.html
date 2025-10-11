@@ -960,35 +960,44 @@
 
             if (reviewMode) {
                 const key = questions[currentQuestion].key;
+                const currentQ = questions[currentQuestion];
 
                 if (isCorrect || isPartial) {
                     masteryTracker[key] = (masteryTracker[key] || 0) + 1;
 
                     if (isPartial) {
                         feedback.className = 'feedback partial';
-                        feedback.innerHTML = `Correct! (Missing accent: ${questions[currentQuestion].pronoun} ${correctAnswer}) (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        if (currentQ.type === 'verb') {
+                            feedback.innerHTML = `Correct! (Missing accent: ${currentQ.pronoun} ${correctAnswer}) (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        } else {
+                            feedback.innerHTML = `Correct! (Missing accent: ${correctAnswer}) (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        }
                     } else {
                         feedback.className = 'feedback correct';
-                        feedback.innerHTML = `Correct! ${questions[currentQuestion].pronoun} ${correctAnswer} (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        if (currentQ.type === 'verb') {
+                            feedback.innerHTML = `Correct! ${currentQ.pronoun} ${correctAnswer} (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        } else {
+                            feedback.innerHTML = `Correct! ${correctAnswer} (${masteryTracker[key]}/2)<br><img src="images/Hello_Kitty.webp" alt="Hello Kitty">`;
+                        }
                     }
 
-                    // If this is the first correct answer, add it back to the end randomly
+                    // If this is the first correct answer, add it back to the queue randomly
                     if (masteryTracker[key] === 1 && questions.length > 1) {
-                        const currentQ = questions[currentQuestion];
                         // Insert at a random position after current question
                         const insertPos = Math.floor(Math.random() * (questions.length - currentQuestion - 1)) + currentQuestion + 1;
                         questions.splice(insertPos, 0, {...currentQ});
                     }
-
-                    // If mastered (correct twice), remove from review
-                    if (masteryTracker[key] >= 2) {
-                        questions = questions.filter(q => q.key !== key);
-                        // Don't increment currentQuestion since we removed the item
-                    }
+                    // Mark that this question should be removed after moving forward
+                    window.removeCurrentReviewQuestion = (masteryTracker[key] >= 2);
                 } else {
                     masteryTracker[key] = 0; // Reset on incorrect answer
                     feedback.className = 'feedback incorrect';
-                    feedback.textContent = `Incorrect. The correct answer is: ${questions[currentQuestion].pronoun} ${correctAnswer}`;
+                    if (currentQ.type === 'verb') {
+                        feedback.textContent = `Incorrect. The correct answer is: ${currentQ.pronoun} ${correctAnswer}`;
+                    } else {
+                        feedback.textContent = `Incorrect. The correct answer is: ${correctAnswer}`;
+                    }
+                    window.removeCurrentReviewQuestion = false;
                 }
             } else {
                 // Normal quiz mode
@@ -1042,18 +1051,19 @@
         }
 
         function nextQuestion() {
-            // In review mode, if the current question was mastered, it was already removed
-            // so we don't increment. Otherwise, move to next question.
             if (!reviewMode) {
                 currentQuestion++;
             } else {
-                // Check if current question still exists and was mastered
-                if (currentQuestion < questions.length) {
+                // In review mode, handle removal and navigation properly
+                if (window.removeCurrentReviewQuestion) {
+                    // Remove the mastered question
                     const key = questions[currentQuestion].key;
-                    if (masteryTracker[key] < 2) {
-                        currentQuestion++;
-                    }
-                    // If mastered (>=2), question was removed, don't increment
+                    questions = questions.filter(q => q.key !== key);
+                    // currentQuestion stays the same (now points to next question)
+                    window.removeCurrentReviewQuestion = false;
+                } else {
+                    // Question was incorrect or first correct, move to next
+                    currentQuestion++;
                 }
             }
             displayQuestion();
